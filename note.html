@@ -84,15 +84,35 @@ header {
   outline: none;
 }
 
-/* BUTTON */
 #add-note {
   background: var(--emerald);
   border: none;
   padding: 0.75rem 1.5rem;
   cursor: pointer;
   border-radius: var(--radius);
+  width: fit-content;
+
+  /* ✨ CONSTANT GLOW */
+  box-shadow: 0 0 12px rgba(0, 200, 150, 0.6),
+              0 0 24px rgba(0, 200, 150, 0.4),
+              0 0 36px rgba(0, 200, 150, 0.2);
+
+  transition: all 0.25s ease;
 }
 
+/* ✨ STRONGER GLOW ON HOVER */
+#add-note:hover {
+  box-shadow: 0 0 18px rgba(0, 200, 150, 0.9),
+              0 0 36px rgba(0, 200, 150, 0.6),
+              0 0 60px rgba(0, 200, 150, 0.3);
+  transform: translateY(-2px);
+}
+
+/* CLICK EFFECT */
+#add-note:active {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(0, 200, 150, 0.4);
+}
 /* NOTES */
 .note-display {
   display: grid;
