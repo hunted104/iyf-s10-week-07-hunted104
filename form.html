@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IYF Login Form</title>
+
+<style>
+/* ===== VARIABLES  ===== */
+:root {
+ --emerald: #00c896;
+  --dark: #0f1923;
+  --card: #162230;
+  --text: #e8f0f7;
+  --radius: 10px;
+}
+
+/* ===== LOGIN BOX ===== */
+.login-box {
+  width: 350px;
+  margin: 100px auto;
+  padding: 25px;
+  border-radius: var(--radius);
+  background: #1c2e3e;
+  color: white;
+  text-align: center;
+}
+
+/* ===== LOGO ===== */
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.logo-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00c896, #0ea5e9);
+}
+
+/* ===== INPUTS ===== */
+.input-group {
+  text-align: left;
+  margin: 15px 0;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+
+/* ===== BUTTON GLOW ===== */
+#login-btn {
+  background: var(--emerald);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  border-radius: var(--radius);
+  width: 100%;
+  font-weight: bold;
+
+  /* ✨ CONSTANT GLOW */
+  box-shadow: 0 0 12px rgba(0, 200, 150, 0.6),
+              0 0 24px rgba(0, 200, 150, 0.4),
+              0 0 36px rgba(0, 200, 150, 0.2);
+
+  transition: all 0.25s ease;
+}
+
+#login-btn:hover {
+  box-shadow: 0 0 18px rgba(0, 200, 150, 0.9),
+              0 0 36px rgba(0, 200, 150, 0.6),
+              0 0 60px rgba(0, 200, 150, 0.3);
+  transform: translateY(-2px);
+}
+
+#login-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(0, 200, 150, 0.4);
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+  <div class="logo">
+    <div class="logo-circle"></div>
+    <h2>IYF KENYA</h2>
+  </div>
+
+  <h1>Welcome to IYF KENYA Login Portal</h1>
+
+  <form id="contact-form">
+
+    <div class="input-group">
+      <label>Username:</label>
+      <input type="text" name="username" placeholder="@username" required>
+    </div>
+
+    <div class="input-group">
+      <label>Password:</label>
+      <input type="password" name="password" placeholder="********" required>
+    </div>
+
+    <button id="login-btn" type="submit">Login</button>
+
+    <div class="signup-link">
+      <p>Don't have an account? <a href="#">Sign up</a></p>
+    </div>
+
+    <div class="forgot-link">
+      <p><a href="#">Forgot password?</a></p>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+
+    const form = document.getElementById("contact-form");
+const inputs = form.querySelectorAll("input, textarea");
+
+// Save on every input
+inputs.forEach(input => {
+     if (!input.name) return;
+    const saved = sessionStorage.getItem(`form_${input.name}`);
+     if (saved) {
+        input.value = saved;
+    }
+    
+    // Save on input
+    input.addEventListener("input", () => {
+        sessionStorage.setItem(`form_${input.name}`, input.value);
+    });
+});
+
+// Clear on successful submit
+form.addEventListener("submit", (e) => { e.preventDefault(); 
+
+    inputs.forEach(input => {
+        sessionStorage.removeItem(`form_${input.name}`);
+    });
+    alert("Form submitted successfully!");
+});
+
+</script>
+</body>
+</html>
