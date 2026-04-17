@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind Dump</title>
+
+<style>
+:root {
+  --emerald: #00c896;
+  --sky: #0ea5e9;
+  --dark: #0f1923;
+  --dark-surface: #162230;
+  --dark-card: #1c2e3e;
+  --dark-border: #243447;
+  --text-primary: #e8f0f7;
+  --text-muted: #7a93a8;
+  --font-main: 'Segoe UI', sans-serif;
+  --radius: 10px;
+  --transition: 0.2s ease;
+}
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--dark);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+header {
+  background-color: var(--dark-surface);
+  border-bottom: 1px solid var(--dark-border);
+  padding: 1.5rem 2rem;
+  text-align: center;
+}
+
+/* CLOCK FIXED (below header, top-right) */
+#clock {
+  position: fixed;
+  top: 90px;
+  right: 25px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  z-index: 999;
+}
+
+/* CONTAINER */
+.container {
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+/* INPUT */
+.note-input {
+  background-color: darkviolet;
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.note-input input,
+.note-input textarea {
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+  color: var(--text-primary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  outline: none;
+}
+
+/* BUTTON */
+#add-note {
+  background: var(--emerald);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+
+/* NOTES */
+.note-display {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.note-card {
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  border-top: 3px solid var(--emerald);
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-card {
+  background: var(--dark-card);
+  padding: 2rem;
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-close {
+  cursor: pointer;
+  float: right;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Mind Dump</h1>
+  <p>Turn scattered thoughts into structured ideas.</p>
+</header>
+
+<!-- ONLY ONE CLOCK -->
+<div id="clock"></div>
+
+<main class="container">
+
+<section class="note-input">
+  <input type="text" id="note-title" placeholder="Note title..." />
+  <textarea id="note-content" placeholder="What's on your mind..." rows="6"></textarea>
+  <button id="add-note">+ Add Note</button>
+</section>
+
+<section class="note-display" id="note-container"></section>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" id="close-modal">✕</button>
+    <h2 id="modal-title"></h2>
+    <p id="modal-body"></p>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; Built by hunted.</p>
+</footer>
+
+<script>
+const STORAGE_KEY = "mindDumpPro";
+
+/* ===== CLOCK FIX ===== */
+function updateClock() {
+  const clock = document.getElementById("clock");
+  const now = new Date();
+  clock.textContent = now.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+
+/* ===== NOTES ===== */
+let notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+const titleInput = document.getElementById("note-title");
+const contentInput = document.getElementById("note-content");
+const addBtn = document.getElementById("add-note");
+const container = document.getElementById("note-container");
+
+const modal = document.getElementById("modal-overlay");
+const modalTitle = document.getElementById("modal-title");
+const modalBody = document.getElementById("modal-body");
+
+function saveNotes() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+
+function renderNotes() {
+  container.innerHTML = "";
+
+  notes.forEach((note, index) => {
+    const card = document.createElement("div");
+    card.className = "note-card";
+
+    card.innerHTML = `
+      <h3>${note.title}</h3>
+      <p>${note.content}</p>
+      <button>Delete</button>
+    `;
+
+    card.addEventListener("click", () => {
+      modalTitle.textContent = note.title;
+      modalBody.textContent = note.content;
+      modal.classList.add("active");
+    });
+
+    card.querySelector("button").onclick = (e) => {
+      e.stopPropagation();
+      notes.splice(index, 1);
+      saveNotes();
+      renderNotes();
+    };
+
+    container.appendChild(card);
+  });
+}
+
+addBtn.onclick = () => {
+  if (!titleInput.value || !contentInput.value) return;
+
+  notes.push({
+    title: titleInput.value,
+    content: contentInput.value
+  });
+
+  saveNotes();
+  renderNotes();
+
+  titleInput.value = "";
+  contentInput.value = "";
+};
+
+modal.onclick = () => modal.classList.remove("active");
+
+renderNotes();
+// Helper function
+function saveToStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+function getFromStorage(key, defaultValue = null) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultValue;
+}
+
+function removeFromStorage(key) {
+    localStorage.removeItem(key);
+}
+
+// Usage
+saveToStorage("settings", { theme: "dark", fontSize: 16 });
+const settings = getFromStorage("settings", { theme: "light", fontSize: 14 });
+</script>
+
+</body>
+</html>
